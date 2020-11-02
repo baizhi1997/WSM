@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/bootstrap-table/1.14.2/bootstrap-table.min.js"></script>
+<link href="https://cdn.bootcss.com/bootstrap-table/1.14.2/bootstrap-table.min.css" rel="stylesheet">
+<title>A Weibo Search Engine</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+</head>
+<body>
+    <p style="text-align: center">
+        <img border="0" src="logo.jpg" alt="LOGO" width="400" height="200">
+    </p>
+    <p style="text-align: center">
+        <script>
+            document.write(Date());
+        </script>
+    </p>
+    <div id="search box" style="text-align: center">
+        <input id="myInput" type="search" placeholder="Please enter keywords" style="width: 300px; height: 30px">
+        <button id="search" style="width: 100px; height: 30px" onclick="loadXMLDoc()">search</button>
+    </div>
+    <div id="search box" style="text-align: center">
+        <p> 
+            select region
+            <select id="regionSelect">
+                <option value="2">weibo</option>
+                <option value="1">hashtag</option>
+                <option value="3">comment</option>
+            </select>
+            select date
+            <select id="timeSelect">
+                <option value="-1">default</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+            </select>
+            order by
+            <select id="orderSelect">
+                <option value="-1">default</option>
+                <option value="time">time</option>
+                <option value="comment">comment</option>
+            </select>
+        </p>
+    </div>
+    <table id="table" border="1" cellspacing="0" cellpadding="0" style="display: none"> </table>
+    <script>
+        var input = document.getElementById("myInput");
+        input.addEventListener("keyup", function(event) {
+            event.preventDefault();
+            if (event.keyCode === 13) {
+                document.getElementById("search").click();
+            }
+        });
+        loadXMLDoc = function(){
+            $('#table').bootstrapTable({
+                pageNumber : 1,
+                pagination : true,
+                sidePagination : 'client',
+                pageSize : 5,
+                pageList : [5, 10, 20, 50, 'All'],
+                columns: [{
+                    field: 'user_id',
+                    title: 'user_id'
+                }, {
+                    field: 'content',
+                    title: 'content'
+                }, {
+                    field: 'comment_num',
+                    title: 'comment_num'
+                }, {
+                    field: 'created_at',
+                    title: 'created_at'
+                }, {
+                    field: 'weibo_url',
+                    title: 'weibo_url'
+                }, {
+                    field: 'tool',
+                    title: 'tool'
+                }, ]
+            });
+            var xmlhttp;
+            var w = document.getElementById("myInput").value;
+            var t = document.getElementById("timeSelect").value;
+            var o = document.getElementById("orderSelect").value;
+            var r = document.getElementById("regionSelect").value;
+            if (window.XMLHttpRequest)
+            {
+                xmlhttp=new XMLHttpRequest();
+            }
+            else
+            {
+                xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange=function()
+            {
+                if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                    var str=xmlhttp.responseText;
+                    var obj=JSON.parse(str);
+                    var table=document.getElementById("table");
+                    $("#table").bootstrapTable('load',obj.data);
+                    table.style.display= "table";
+                }
+            }
+            xmlhttp.open("GET", 'http://i.ketangyun.cn:38080/search_tweets?word='.concat(w, "&time=", t, "&order=", o, "&region=", r), true);
+            xmlhttp.send();
+        }
+    </script>
+</body>
+</html>
